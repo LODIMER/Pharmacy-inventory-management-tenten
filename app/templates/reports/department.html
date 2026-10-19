@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Unit usage{% endblock %}
+{% block heading %}Departmental stock usage{% endblock %}
+{% block content %}
+<div class="grid split">
+  <article class="card">
+    <h2>Completed transfers</h2>
+    <table>
+      <thead><tr><th>Request</th><th>When</th></tr></thead>
+      <tbody>
+      {% for r in reqs %}
+        <tr><td><a href="{{ url_for('requisitions.detail', req_id=r.id) }}">{{ r.req_number }}</a></td>
+            <td>{{ r.created_at.strftime("%Y-%m-%d") }}</td></tr>
+      {% else %}
+        <tr><td colspan="2" class="muted">No completed unit transfers yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </article>
+  <article class="card">
+    <h2>Usage summary</h2>
+    <ul>{% for name, qty in usage.items() %}<li>{{ name }} — {{ qty }}</li>{% else %}<li class="muted">No usage recorded.</li>{% endfor %}</ul>
+  </article>
+</div>
+{% endblock %}

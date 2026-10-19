@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Forbidden{% endblock %}
+{% block heading %}Access denied{% endblock %}
+{% block content %}
+<div class="card">
+  <p>Your role cannot open this area. Patients and department users cannot view stock counts, supplier pricing, or other profiles.</p>
+  <a class="btn" href="{{ url_for('dashboard.home') }}">Back to dashboard</a>
+</div>
+{% endblock %}

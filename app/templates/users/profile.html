@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block heading %}Account profile{% endblock %}
+{% block content %}
+<div class="card" style="max-width:640px">
+  <p><strong>{{ current_user.full_name }}</strong> · {{ current_user.role_label() }}</p>
+  <p class="muted">Username {{ current_user.username }} cannot be changed here. Role assignment is admin-only.</p>
+  <form method="post">
+    <label>Email</label><input name="email" value="{{ current_user.email or '' }}">
+    <label>Phone</label><input name="phone" value="{{ current_user.phone or '' }}">
+    {% if current_user.prescription_notes %}
+      <p>Prescription notes: {{ current_user.prescription_notes }}</p>
+    {% endif %}
+    <label>New password (optional)</label><input name="password" type="password">
+    <p><button type="submit">Save profile</button></p>
+  </form>
+</div>
+{% endblock %}

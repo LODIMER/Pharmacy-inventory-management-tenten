@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Staff Dashboard{% endblock %}
+{% block heading %}Executive summary{% endblock %}
+{% block content %}
+<section class="grid metrics">
+  <article class="card metric ok">
+    <div class="lbl">Total inventory value</div>
+    <div class="val money">₱{{ "%.2f"|format(inventory_value) }}</div>
+  </article>
+  <article class="card metric">
+    <div class="lbl">Active SKUs</div>
+    <div class="val">{{ active_skus }}</div>
+  </article>
+  <article class="card metric warn">
+    <div class="lbl">Low stock</div>
+    <div class="val">{{ low|length }}</div>
+  </article>
+  <article class="card metric bad">
+    <div class="lbl">Out of stock</div>
+    <div class="val">{{ out|length }}</div>
+  </article>
+  <article class="card metric warn">
+    <div class="lbl">Overstock</div>
+    <div class="val">{{ over|length }}</div>
+  </article>
+</section>
+
+<section class="grid metrics" style="margin-top:16px">
+  <article class="card metric">
+    <div class="lbl">Expiring ≤ 30 days</div>
+    <div class="val">{{ expiry[30] }}</div>
+  </article>
+  <article class="card metric">
+    <div class="lbl">Expiring ≤ 60 days</div>
+    <div class="val">{{ expiry[60] }}</div>
+  </article>
+  <article class="card metric">
+    <div class="lbl">Expiring ≤ 90 days</div>
+    <div class="val">{{ expiry[90] }}</div>
+  </article>
+  <article class="card metric ok">
+    <div class="lbl">Today’s sales</div>
+    <div class="val money">₱{{ "%.2f"|format(today_sales) }}</div>
+  </article>
+  <article class="card metric">
+    <div class="lbl">Pending orders / Rx</div>
+    <div class="val">{{ pending_rx }}</div>
+  </article>
+  <article class="card metric">
+    <div class="lbl">Lots received today</div>
+    <div class="val">{{ received_today }}</div>
+  </article>
+</section>
+
+<div class="grid cards" style="margin-top:18px">
+  <article class="card">
+    <h2>Stock alerts</h2>
+    {% if not alerts %}
+      <p class="muted">No unread low-stock or out-of-stock alerts.</p>
+    {% else %}
+      <ul class="feed alert-list">
+        {% for a in alerts %}
+        <li>
+          <span class="pill {{ a.alert_type }}">{{ a.alert_type }}</span>
+          {{ a.message }}
+          <form method="post" action="{{ url_for('dashboard.mark_alert_read', alert_id=a.id) }}">
+            <button class="btn ghost-btn" type="submit">Dismiss</button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% if out %}
+      <p class="muted">Out of stock: {% for p in out %}<strong>{{ p.brand_name }}</strong>{% if not loop.last %}, {% endif %}{% endfor %}</p>
+    {% endif %}
+    {% if low %}
+      <p class="muted">Running low: {% for p in low %}<strong>{{ p.brand_name }}</strong> ({{ p.available_qty() }}){% if not loop.last %}, {% endif %}{% endfor %}</p>
+    {% endif %}
+  </article>
+  <article class="card">
+    <h2>Recent activity</h2>
+    <ul class="feed">
+      {% for act in activities %}
+      <li>{{ act.message }}<time>{{ act.created_at.strftime("%Y-%m-%d %H:%M") }}</time></li>
+      {% else %}
+      <li class="muted">No activity yet.</li>
+      {% endfor %}
+    </ul>
+  </article>
+</div>
+{% endblock %}

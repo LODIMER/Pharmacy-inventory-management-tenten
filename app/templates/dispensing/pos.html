@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Dispense{% endblock %}
+{% block heading %}Dispensing &amp; sales{% endblock %}
+{% block content %}
+<div class="grid split">
+  <article class="card">
+    <h2>Select product / scan barcode</h2>
+    <form method="post" action="{{ url_for('dispensing.add_line') }}" class="row">
+      <div><label>Barcode / NDC / UPC</label><input name="barcode" autofocus></div>
+      <div>
+        <label>Or choose item</label>
+        <select name="product_id">
+          <option value="">—</option>
+          {% for p in products %}
+            <option value="{{ p.id }}">{{ p.brand_name }} · {{ p.strength }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div><label>Qty</label><input name="quantity" type="number" value="1" min="1"></div>
+      <div><label>&nbsp;</label><button type="submit">Add (FEFO lot)</button></div>
+    </form>
+    {% if suggested %}
+      <p class="muted">Suggested earliest-expiring lot: {{ suggested.lot_number }} exp {{ suggested.expiry_date }} qty {{ suggested.quantity }}</p>
+    {% endif %}
+    <table>
+      <thead><tr><th>Item</th><th>Lot (FEFO)</th><th>Qty</th><th>Price</th></tr></thead>
+      <tbody>
+      {% for i in cart %}
+        <tr>
+          <td>{{ i.product_name }} <span class="muted">{{ i.generic }}</span>
+            {% if i.controlled %}<span class="pill danger">C-{{ i.schedule }}</span>{% endif %}
+          </td>
+          <td>{{ i.lot }} · {{ i.expiry }}</td>
+          <td>{{ i.qty }}</td>
+          <td>₱{{ "%.2f"|format(i.unit_price * i.qty) }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="muted">Scan or search to add lines.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <form method="post" action="{{ url_for('dispensing.clear') }}"><button class="btn ghost-btn" type="submit">Clear cart</button></form>
+  </article>
+  <article class="card">
+    <h2>Verify &amp; tender</h2>
+    <form method="post" action="{{ url_for('dispensing.complete') }}">
+      <label>Patient / requester</label>
+      <select name="patient_id">
+        <option value="">Walk-in</option>
+        {% for p in patients %}<option value="{{ p.id }}">{{ p.full_name }} ({{ p.role_label() }})</option>{% endfor %}
+      </select>
+      <label>Prescription / order ID</label><input name="prescription_id" placeholder="RX-…">
+      <label>Discount</label>
+      <select name="discount_type">{% for d in discounts %}<option>{{ d }}</option>{% endfor %}</select>
+      <label>Second verifier (required for controlled substances)</label>
+      <select name="verifier_id">
+        <option value="">—</option>
+        {% for s in staff %}
+          {% if s.id != current_user.id %}<option value="{{ s.id }}">{{ s.full_name }}</option>{% endif %}
+        {% endfor %}
+      </select>
+      <label>Doctor license number</label><input name="doctor_license">
+      <p class="muted">VAT 12% applies unless Senior Citizen / PWD (20% discount, VAT-exempt).</p>
+      <button type="submit">Deduct stock &amp; print receipt</button>
+    </form>
+  </article>
+</div>
+{% endblock %}

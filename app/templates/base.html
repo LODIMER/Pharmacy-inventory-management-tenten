@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MedVault Pharmacy{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="{% if current_user.is_authenticated and current_user.is_staff() %}theme-staff{% else %}theme-portal{% endif %}">
+{% if current_user.is_authenticated %}
+<aside class="rail">
+  <div class="brand">
+    <span class="mark">MV</span>
+    <div>
+      <strong>MedVault</strong>
+      <small>Pharmacy Inventory</small>
+    </div>
+  </div>
+  <nav>
+    <a href="{{ url_for('dashboard.home') }}">Dashboard</a>
+    {% if current_user.is_staff() %}
+      <a href="{{ url_for('products.index') }}">Drug Master</a>
+      {% if current_user.can_inventory() %}
+        <a href="{{ url_for('inventory.index') }}">Batches &amp; Stock</a>
+        <a href="{{ url_for('inventory.receive') }}">Receiving</a>
+      {% endif %}
+      {% if current_user.can_dispense() %}
+        <a href="{{ url_for('dispensing.pos') }}">Dispense / POS</a>
+      {% endif %}
+      <a href="{{ url_for('dispensing.history') }}">Sales History</a>
+      <a href="{{ url_for('requisitions.index') }}">Requisitions</a>
+      {% if current_user.can_purchase() %}
+        <a href="{{ url_for('suppliers.index') }}">Suppliers</a>
+        <a href="{{ url_for('suppliers.po_index') }}">Purchase Orders</a>
+        <a href="{{ url_for('suppliers.returns') }}">Returns / Credit</a>
+      {% endif %}
+      <a href="{{ url_for('reports.index') }}">Reports</a>
+      <a href="{{ url_for('audit.index') }}">Audit Trail</a>
+      {% if current_user.can_manage_users() %}
+        <a href="{{ url_for('users.index') }}">Staff &amp; Accounts</a>
+      {% endif %}
+    {% else %}
+      <a href="{{ url_for('products.catalog') }}">Product Directory</a>
+      <a href="{{ url_for('requisitions.create') }}">New Request</a>
+      <a href="{{ url_for('requisitions.index') }}">My Orders</a>
+      <a href="{{ url_for('dispensing.history') }}">Receipt History</a>
+      {% if current_user.role == 'department' %}
+        <a href="{{ url_for('reports.department') }}">Unit Usage</a>
+      {% endif %}
+      <a href="{{ url_for('audit.mine') }}">My Activity Log</a>
+    {% endif %}
+    <a href="{{ url_for('users.profile') }}">Profile</a>
+  </nav>
+  <div class="rail-foot">
+    <div class="who">
+      <strong>{{ current_user.full_name }}</strong>
+      <small>{{ current_user.role_label() }}</small>
+    </div>
+    <a class="ghost" href="{{ url_for('auth.logout') }}">Sign out</a>
+  </div>
+</aside>
+{% endif %}
+<main class="stage">
+  {% if current_user.is_authenticated %}
+  <header class="top">
+    <h1>{% block heading %}{% endblock %}</h1>
+    {% if current_user.is_staff() and unread_alerts %}
+      <a class="pill danger" href="{{ url_for('dashboard.staff') }}">{{ unread_alerts }} stock alerts</a>
+    {% endif %}
+  </header>
+  {% endif %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

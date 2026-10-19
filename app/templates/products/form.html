@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Product{% endblock %}
+{% block heading %}{{ "Update product" if product else "Add product" }}{% endblock %}
+{% block content %}
+<form class="card" method="post">
+  <div class="row">
+    <div><label>Brand name</label><input name="brand_name" value="{{ product.brand_name if product else '' }}" required></div>
+    <div><label>Generic name (API)</label><input name="generic_name" value="{{ product.generic_name if product else '' }}" required></div>
+  </div>
+  <div class="row">
+    <div><label>NDC</label><input name="ndc" value="{{ product.ndc if product else '' }}"></div>
+    <div><label>UPC</label><input name="upc" value="{{ product.upc if product else '' }}"></div>
+    <div><label>Barcode ID</label><input name="barcode" value="{{ product.barcode if product else '' }}"></div>
+  </div>
+  <div class="row">
+    <div>
+      <label>Dosage form</label>
+      <select name="dosage_form">{% for d in dosage_forms %}<option {% if product and product.dosage_form==d %}selected{% endif %}>{{ d }}</option>{% endfor %}</select>
+    </div>
+    <div><label>Strength</label><input name="strength" value="{{ product.strength if product else '' }}" placeholder="500mg"></div>
+    <div>
+      <label>Category</label>
+      <select name="category">{% for c in categories %}<option {% if product and product.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+    </div>
+  </div>
+  <div class="row">
+    <div><label>Therapeutic class</label><input name="therapeutic_class" value="{{ product.therapeutic_class if product else '' }}"></div>
+    <div>
+      <label>Storage</label>
+      <select name="storage_condition">{% for s in storage_conditions %}<option {% if product and product.storage_condition==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+    </div>
+    <div>
+      <label>UOM</label>
+      <select name="uom">{% for u in uoms %}<option {% if product and product.uom==u %}selected{% endif %}>{{ u }}</option>{% endfor %}</select>
+    </div>
+  </div>
+  <div class="row">
+    <div><label>Unit cost</label><input name="unit_cost" type="number" step="0.01" value="{{ product.unit_cost if product else 0 }}"></div>
+    <div><label>Retail price</label><input name="retail_price" type="number" step="0.01" value="{{ product.retail_price if product else 0 }}"></div>
+    <div><label>Reorder (min)</label><input name="reorder_point" type="number" value="{{ product.reorder_point if product else 10 }}"></div>
+    <div><label>Target max</label><input name="max_level" type="number" value="{{ product.max_level if product else 100 }}"></div>
+  </div>
+  <label>Safety alerts</label><textarea name="safety_alerts">{{ product.safety_alerts if product else '' }}</textarea>
+  <label>Drug interaction warnings</label><textarea name="interaction_warnings">{{ product.interaction_warnings if product else '' }}</textarea>
+  <label><input type="checkbox" name="lasa_flag" style="width:auto" {% if product and product.lasa_flag %}checked{% endif %}> Look-alike / sound-alike (LASA)</label>
+  <label><input type="checkbox" name="is_controlled" style="width:auto" {% if product and product.is_controlled %}checked{% endif %}> Controlled substance</label>
+  <label>Schedule (II–V)</label><input name="schedule" value="{{ product.schedule if product else '' }}">
+  <label><input type="checkbox" name="is_active" style="width:auto" {% if not product or product.is_active %}checked{% endif %}> Active (uncheck to archive)</label>
+  <p><button type="submit">Save master record</button></p>
+</form>
+{% endblock %}

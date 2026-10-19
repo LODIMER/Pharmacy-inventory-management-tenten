@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Stock lots{% endblock %}
+{% block heading %}Batch / lot inventory (FEFO){% endblock %}
+{% block content %}
+<form class="toolbar" method="get">
+  <input name="q" value="{{ q }}" placeholder="Product or lot">
+  <select name="status">
+    {% for s in statuses %}<option value="{{ s }}" {% if status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    <option value="" {% if not status %}selected{% endif %}>all</option>
+  </select>
+  <button type="submit">Filter</button>
+  {% if current_user.can_inventory() %}
+    <a class="btn secondary" href="{{ url_for('inventory.receive') }}">Receive stock</a>
+  {% endif %}
+</form>
+<div class="card" style="overflow:auto">
+<table>
+  <thead>
+    <tr>
+      <th>Product</th><th>Lot</th><th>Mfg / Expiry</th><th>Location</th>
+      <th>Qty</th><th>Status</th><th>Perpetual (all lots)</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for b in batches %}
+    {% set days = (b.expiry_date - today).days %}
+    <tr>
+      <td>{{ b.product.brand_name }}<br><span class="muted">{{ b.product.generic_name }}</span></td>
+      <td>{{ b.lot_number }}{% if b.po %}<br><span class="muted">{{ b.po.po_number }}</span>{% endif %}</td>
+      <td>{{ b.mfg_date or "—" }} / {{ b.expiry_date }}
+        {% if days < 0 %}<div class="pill out">expired</div>
+        {% elif days <= 30 %}<div class="pill warn">{{ days }}d</div>{% endif %}
+      </td>
+      <td>{{ b.location }}</td>
+      <td>{{ b.quantity }} {{ b.product.uom }}</td>
+      <td><span class="pill">{{ b.status }}</span></td>
+      <td>{{ perpetual.get(b.product_id, 0) }}</td>
+      <td>
+        {% if current_user.can_inventory() %}
+          <a href="{{ url_for('inventory.adjust', batch_id=b.id) }}">Adjust / quarantine</a>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

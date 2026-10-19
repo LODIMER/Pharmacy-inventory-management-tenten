@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Suppliers{% endblock %}
+{% block heading %}Supplier master directory{% endblock %}
+{% block content %}
+<p><a class="btn" href="{{ url_for('suppliers.create') }}">Add supplier</a></p>
+<div class="card">
+<table>
+  <thead><tr><th>Name</th><th>Contact</th><th>Lead time</th><th>Terms</th><th></th></tr></thead>
+  <tbody>
+  {% for s in suppliers %}
+    <tr>
+      <td><strong>{{ s.name }}</strong><br><span class="muted">{{ s.address }}</span></td>
+      <td>{{ s.contact_name }}<br>{{ s.email }} · {{ s.phone }}</td>
+      <td>{{ s.lead_time_days }} days</td>
+      <td>{{ s.payment_terms }}</td>
+      <td><a href="{{ url_for('suppliers.edit', supplier_id=s.id) }}">Edit</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

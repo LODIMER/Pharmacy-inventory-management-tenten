@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}New return{% endblock %}
+{% block heading %}Wholesaler credit return{% endblock %}
+{% block content %}
+<form class="card" method="post" style="max-width:640px">
+  <label>Supplier</label>
+  <select name="supplier_id">{% for s in suppliers %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select>
+  <label>Batch / lot</label>
+  <select name="batch_id">
+    {% for b in batches %}
+      <option value="{{ b.id }}">{{ b.product.brand_name }} · {{ b.lot_number }} exp {{ b.expiry_date }} ({{ b.quantity }} {{ b.status }})</option>
+    {% endfor %}
+  </select>
+  <div class="row">
+    <div><label>Quantity</label><input type="number" name="quantity" min="1" required></div>
+    <div>
+      <label>Reason</label>
+      <select name="reason"><option>expired</option><option>recalled</option></select>
+    </div>
+  </div>
+  <div class="row">
+    <div><label>Credit note #</label><input name="credit_note"></div>
+    <div><label>Credit amount</label><input name="credit_amount" type="number" step="0.01"></div>
+  </div>
+  <p><button type="submit">Post return</button></p>
+</form>
+{% endblock %}

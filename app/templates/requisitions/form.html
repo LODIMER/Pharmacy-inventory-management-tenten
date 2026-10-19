@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}New request{% endblock %}
+{% block heading %}{{ "Department stock transfer" if current_user.role=="department" else "Refill / medication request" }}{% endblock %}
+{% block content %}
+<form class="card" method="post" enctype="multipart/form-data" style="max-width:720px">
+  <div class="row">
+    <div>
+      <label>Pickup or delivery</label>
+      <select name="fulfillment"><option value="pickup">Pickup</option><option value="delivery">Delivery</option></select>
+    </div>
+    <div><label>Preferred pickup / delivery time</label><input name="pickup_time" placeholder="Today 4:00 PM"></div>
+  </div>
+  <label>Notes</label><textarea name="notes"></textarea>
+  <label>Upload prescription (optional)</label><input type="file" name="prescription">
+  <h2>Items</h2>
+  {% for i in range(4) %}
+  <div class="row">
+    <div>
+      <label>Medication</label>
+      <select name="product_id">
+        <option value="">—</option>
+        {% for p in products %}
+          <option value="{{ p.id }}">{{ p.brand_name }} ({{ p.generic_name }}) · {{ p.availability_label() }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div><label>Quantity</label><input name="quantity" type="number" min="1" value="1"></div>
+  </div>
+  {% endfor %}
+  <p><button type="submit">Submit request</button></p>
+</form>
+{% endblock %}

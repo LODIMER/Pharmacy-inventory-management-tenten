@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · MedVault</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+<div class="login-wrap">
+  <form class="login-card" method="post">
+    <div class="brand">
+      <span class="mark">MV</span>
+      <div><strong>MedVault</strong><small>Pharmacy Inventory Control</small></div>
+    </div>
+    <h1>Sign in</h1>
+    <p class="muted">Staff use employee credentials. Patients and departments use personal or unit accounts. Access is role-based.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    <label>Username</label>
+    <input name="username" autocomplete="username" required>
+    <label>Password</label>
+    <input name="password" type="password" autocomplete="current-password" required>
+    <p><button type="submit">Enter pharmacy</button></p>
+    <div class="hint">
+      Demo accounts<br>
+      Staff: <code>admin / admin123</code> · <code>pharmacist / pharma123</code> ·
+      <code>dispenser / dispense123</code> · <code>inventory / inventory123</code><br>
+      Portal: <code>patient / patient123</code> · <code>department / dept123</code>
+    </div>
+  </form>
+</div>
+</body>
+</html>

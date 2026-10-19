@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Adjust{% endblock %}
+{% block heading %}Adjust lot {{ batch.lot_number }}{% endblock %}
+{% block content %}
+<form class="card" method="post" style="max-width:560px">
+  <p>{{ batch.product.brand_name }} · on hand {{ batch.quantity }} · {{ batch.location }}</p>
+  <label>New quantity</label><input name="quantity" type="number" min="0" value="{{ batch.quantity }}">
+  <label>Status</label>
+  <select name="status">{% for s in statuses %}<option {% if batch.status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+  <label>Reason</label>
+  <select name="reason">
+    <option>damaged</option><option>sample</option><option>quarantine</option>
+    <option>rts</option><option>write_off</option>
+  </select>
+  <label>Notes</label><textarea name="notes"></textarea>
+  <p><button class="danger-btn" type="submit">Save adjustment (audited)</button></p>
+</form>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ sale.receipt_no }}{% endblock %}
+{% block heading %}Receipt {{ sale.receipt_no }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:640px">
+  <p>{{ sale.created_at.strftime("%Y-%m-%d %H:%M") }} · Dispenser {{ sale.dispenser.full_name }}</p>
+  {% if sale.patient %}<p>Patient: {{ sale.patient.full_name }}</p>{% endif %}
+  {% if sale.prescription_id %}<p>Rx {{ sale.prescription_id }}</p>{% endif %}
+  <table>
+    <thead><tr><th>Item</th><th>Lot</th><th>Qty</th><th>Amount</th></tr></thead>
+    <tbody>
+    {% for l in sale.lines %}
+      <tr>
+        <td>{{ l.product.brand_name }}</td>
+        <td>{{ l.batch.lot_number }}</td>
+        <td>{{ l.quantity }}</td>
+        <td>₱{{ "%.2f"|format(l.line_total) }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p>Subtotal ₱{{ "%.2f"|format(sale.subtotal) }}<br>
+     Discount ({{ sale.discount_type }}) −₱{{ "%.2f"|format(sale.discount_amount) }}<br>
+     Tax ₱{{ "%.2f"|format(sale.tax_amount) }}<br>
+     <strong>Total ₱{{ "%.2f"|format(sale.total) }}</strong></p>
+  {% if sale.doctor_license %}<p>Doctor license {{ sale.doctor_license }}{% if sale.verifier %} · Verified by {{ sale.verifier.full_name }}{% endif %}</p>{% endif %}
+  {% if current_user.is_staff() and current_user.can_dispense() %}
+    <form method="post" action="{{ url_for('dispensing.return_to_stock', sale_id=sale.id) }}"
+          onsubmit="return confirm('Return this uncollected prescription to stock?');">
+      <button class="danger-btn" type="submit">Return to stock (uncollected)</button>
+    </form>
+  {% endif %}
+</div>
+{% endblock %}

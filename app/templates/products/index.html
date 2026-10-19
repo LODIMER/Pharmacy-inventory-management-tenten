@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Drug Master{% endblock %}
+{% block heading %}Product &amp; drug master directory{% endblock %}
+{% block content %}
+<form class="toolbar" method="get">
+  <div><label>Search name / NDC / barcode</label><input name="q" value="{{ q }}"></div>
+  <div>
+    <label>Category</label>
+    <select name="category">
+      <option value="">All</option>
+      {% for c in categories %}<option {% if category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+  </div>
+  <button type="submit">Search</button>
+  {% if current_user.can_inventory() %}
+    <a class="btn secondary" href="{{ url_for('products.create') }}">Add product</a>
+  {% endif %}
+</form>
+<div class="card" style="overflow:auto">
+<table>
+  <thead>
+    <tr>
+      <th>Item</th><th>Codes</th><th>Form / strength</th><th>Class</th>
+      <th>Cost / price</th><th>PAR</th><th>On hand</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for p in products %}
+    <tr>
+      <td>
+        <strong>{{ p.brand_name }}</strong><br>
+        <span class="muted">{{ p.generic_name }}</span>
+        {% if p.lasa_flag %}<div class="lasa">LASA</div>{% endif %}
+        {% if not p.is_active %}<span class="pill out">Archived</span>{% endif %}
+      </td>
+      <td>NDC {{ p.ndc }}<br>UPC {{ p.upc }}<br>BC {{ p.barcode }}</td>
+      <td>{{ p.dosage_form }} {{ p.strength }}<br>{{ p.uom }} · {{ p.storage_condition }}</td>
+      <td>{{ p.category }}<br>{{ p.therapeutic_class }}
+        {% if p.is_controlled %}<div class="pill danger">C-{{ p.schedule }}</div>{% endif %}
+      </td>
+      <td>₱{{ "%.2f"|format(p.unit_cost) }} / ₱{{ "%.2f"|format(p.retail_price) }}<br>
+        <span class="muted">Markup {{ "%.1f"|format(p.markup_percent) }}%</span></td>
+      <td>Min {{ p.reorder_point }}<br>Max {{ p.max_level }}</td>
+      <td>
+        {{ p.available_qty() }}
+        <div class="pill {{ p.stock_status() }}">{{ p.stock_status() }}</div>
+      </td>
+      <td>
+        {% if current_user.can_inventory() %}
+          <a href="{{ url_for('products.edit', product_id=p.id) }}">Update</a>
+          {% if p.is_active %}
+          <form method="post" action="{{ url_for('products.archive', product_id=p.id) }}">
+            <button class="btn ghost-btn" type="submit">Archive</button>
+          </form>
+          {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Returns{% endblock %}
+{% block heading %}Returns to supplier / reverse distribution{% endblock %}
+{% block content %}
+<p><a class="btn" href="{{ url_for('suppliers.return_new') }}">Record expired / recalled return</a></p>
+<div class="card">
+<table>
+  <thead><tr><th>Number</th><th>Supplier</th><th>Lot</th><th>Qty</th><th>Reason</th><th>Credit</th></tr></thead>
+  <tbody>
+  {% for r in items %}
+    <tr>
+      <td>{{ r.return_number }}</td>
+      <td>{{ r.supplier.name }}</td>
+      <td>{{ r.batch.lot_number }} ({{ r.batch.product.brand_name }})</td>
+      <td>{{ r.quantity }}</td>
+      <td>{{ r.reason }}</td>
+      <td>{{ r.credit_note }} · ₱{{ "%.2f"|format(r.credit_amount) }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

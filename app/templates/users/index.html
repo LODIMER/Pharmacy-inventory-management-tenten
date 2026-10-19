@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Accounts{% endblock %}
+{% block heading %}Staff and user accounts{% endblock %}
+{% block content %}
+<form class="toolbar" method="get">
+  <div><label>Search</label><input name="q" value="{{ q }}"></div>
+  <div>
+    <label>Role</label>
+    <select name="role">
+      <option value="">All</option>
+      {% for k,v in roles.items() %}
+        <option value="{{ k }}" {% if role==k %}selected{% endif %}>{{ v }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit">Filter</button>
+  <a class="btn secondary" href="{{ url_for('users.create') }}">New account</a>
+</form>
+<div class="card">
+<table>
+  <thead><tr><th>User</th><th>Role</th><th>Contact</th><th>Status</th><th>Last login</th><th></th></tr></thead>
+  <tbody>
+  {% for u in users %}
+    <tr>
+      <td><strong>{{ u.full_name }}</strong><br><span class="muted">{{ u.username }}</span>
+        {% if u.department_name %}<br><span class="pill">{{ u.department_name }}</span>{% endif %}
+      </td>
+      <td>{{ u.role_label() }}</td>
+      <td>{{ u.email }}<br>{{ u.phone }}</td>
+      <td>{% if u.is_active %}<span class="pill ok">Active</span>{% else %}<span class="pill out">Disabled</span>{% endif %}</td>
+      <td>{{ u.last_login.strftime("%Y-%m-%d %H:%M") if u.last_login else "—" }}</td>
+      <td>
+        <a href="{{ url_for('users.edit', user_id=u.id) }}">Edit / permissions</a>
+        <form method="post" action="{{ url_for('users.reset_password', user_id=u.id) }}" style="margin-top:6px">
+          <input name="password" placeholder="New password" required>
+          <button class="btn ghost-btn" type="submit">Reset password</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Directory{% endblock %}
+{% block heading %}Available products{% endblock %}
+{% block content %}
+<p class="muted">Public catalog shows name, generic equivalent, dosage form, and availability. Costs, supplier data, exact quantities, and reorder points are hidden.</p>
+<form class="toolbar" method="get">
+  <input name="q" value="{{ q }}" placeholder="Search brand or generic">
+  <button type="submit">Search</button>
+</form>
+<div class="grid metrics">
+{% for p in products %}
+  <article class="card">
+    <h2>{{ p.brand_name }}</h2>
+    <p>{{ p.generic_name }} · {{ p.dosage_form }} {{ p.strength }}</p>
+    <p><span class="pill {{ p.stock_status() }}">{{ p.availability_label() }}</span>
+      {% if p.lasa_flag %}<span class="lasa">Check name carefully</span>{% endif %}
+    </p>
+    {% if p.safety_alerts %}<p class="muted">{{ p.safety_alerts }}</p>{% endif %}
+  </article>
+{% endfor %}
+</div>
+{% endblock %}

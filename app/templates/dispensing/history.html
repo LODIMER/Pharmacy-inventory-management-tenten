@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Sales{% endblock %}
+{% block heading %}{{ "Sales & dispensing" if current_user.is_staff() else "My purchase history" }}{% endblock %}
+{% block content %}
+<div class="card">
+<table>
+  <thead><tr><th>Receipt</th><th>Patient</th><th>Discount</th><th>Total</th><th>When</th></tr></thead>
+  <tbody>
+  {% for s in sales %}
+    <tr>
+      <td><a href="{{ url_for('dispensing.receipt', sale_id=s.id) }}">{{ s.receipt_no }}</a></td>
+      <td>{{ s.patient.full_name if s.patient else "Walk-in" }}</td>
+      <td>{{ s.discount_type }}</td>
+      <td>₱{{ "%.2f"|format(s.total) }}</td>
+      <td>{{ s.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

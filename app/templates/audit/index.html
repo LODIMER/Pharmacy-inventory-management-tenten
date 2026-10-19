@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Audit{% endblock %}
+{% block heading %}Audit trail &amp; security log{% endblock %}
+{% block content %}
+<p class="muted">Logs are append-only. Standard staff cannot edit or delete entries. Price overrides, quantity edits, and cancelled orders include before/after values.</p>
+<div class="card" style="overflow:auto">
+<table>
+  <thead>
+    <tr><th>When</th><th>User</th><th>IP / workstation</th><th>Action</th><th>Entity</th><th>Before → After</th></tr>
+  </thead>
+  <tbody>
+  {% for l in logs %}
+    <tr>
+      <td>{{ l.timestamp.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+      <td>{{ l.user.username if l.user else "system" }}</td>
+      <td>{{ l.ip_address }}<br><span class="muted">{{ l.workstation }}</span></td>
+      <td>{{ l.action }}</td>
+      <td>{{ l.entity }} {{ l.entity_id or "" }}<br><span class="muted">{{ l.details or "" }}</span></td>
+      <td>{{ l.before_value or "—" }} → {{ l.after_value or "—" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ po.po_number }}{% endblock %}
+{% block heading %}{{ po.po_number }}{% endblock %}
+{% block content %}
+<div class="card">
+  <p>{{ po.supplier.name }} · <span class="pill">{{ po.status.replace('_',' ') }}</span></p>
+  <p class="muted">{{ po.notes }}</p>
+  <table>
+    <thead><tr><th>Item</th><th>Ordered</th><th>Received</th><th>Cost</th></tr></thead>
+    <tbody>
+    {% for l in po.lines %}
+      <tr>
+        <td>{{ l.product.brand_name }}</td>
+        <td>{{ l.qty_ordered }}</td>
+        <td>{{ l.qty_received }}</td>
+        <td>₱{{ "%.2f"|format(l.unit_cost) }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <form method="post" action="{{ url_for('suppliers.po_status', po_id=po.id) }}" class="toolbar">
+    <select name="status">
+      {% for s in statuses %}<option value="{{ s }}" {% if po.status==s %}selected{% endif %}>{{ s.replace('_',' ') }}</option>{% endfor %}
+    </select>
+    <button type="submit">Update status</button>
+  </form>
+  <p><a href="{{ url_for('inventory.receive') }}">Receive against this PO</a></p>
+</div>
+{% endblock %}

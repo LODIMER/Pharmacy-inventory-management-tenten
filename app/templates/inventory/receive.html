@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Receive{% endblock %}
+{% block heading %}Stock receiving{% endblock %}
+{% block content %}
+<form class="card" method="post" style="max-width:760px">
+  <p class="muted">Record PO number, supplier invoice date, lot, manufacturing/expiry dates, and FEFO storage location.</p>
+  <label>Purchase order</label>
+  <select name="po_id">
+    <option value="">Walk-in / no PO</option>
+    {% for po in pos %}
+      <option value="{{ po.id }}">{{ po.po_number }} — {{ po.supplier.name }} ({{ po.status }})</option>
+    {% endfor %}
+  </select>
+  <label>Product</label>
+  <select name="product_id" required>
+    {% for p in products %}<option value="{{ p.id }}">{{ p.brand_name }} ({{ p.generic_name }})</option>{% endfor %}
+  </select>
+  <div class="row">
+    <div><label>Lot / batch number</label><input name="lot_number" required></div>
+    <div><label>Quantity</label><input name="quantity" type="number" min="1" required></div>
+    <div>
+      <label>Location</label>
+      <select name="location">{% for loc in locations %}<option>{{ loc }}</option>{% endfor %}</select>
+    </div>
+  </div>
+  <div class="row">
+    <div><label>Manufacturing date</label><input name="mfg_date" type="date"></div>
+    <div><label>Expiry date</label><input name="expiry_date" type="date" required></div>
+    <div><label>Invoice date</label><input name="invoice_date" type="date"></div>
+  </div>
+  <p><button type="submit">Post receipt</button></p>
+</form>
+{% endblock %}

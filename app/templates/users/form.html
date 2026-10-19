@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Account{% endblock %}
+{% block heading %}{{ "Edit account" if user else "Create account" }}{% endblock %}
+{% block content %}
+<form class="card" method="post" style="max-width:720px">
+  {% if not user %}
+  <label>Username</label><input name="username" required>
+  <label>Password</label><input name="password" value="changeme123">
+  {% endif %}
+  <div class="row">
+    <div><label>Full name</label><input name="full_name" value="{{ user.full_name if user else '' }}" required></div>
+    <div>
+      <label>Role</label>
+      <select name="role">
+        {% for k,v in roles.items() %}
+          <option value="{{ k }}" {% if user and user.role==k %}selected{% endif %}>{{ v }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="row">
+    <div><label>Email</label><input name="email" value="{{ user.email if user else '' }}"></div>
+    <div><label>Phone</label><input name="phone" value="{{ user.phone if user else '' }}"></div>
+    <div><label>Department / unit</label><input name="department_name" value="{{ user.department_name if user else '' }}"></div>
+  </div>
+  <label>Prescription notes (patients)</label>
+  <textarea name="prescription_notes">{{ user.prescription_notes if user else '' }}</textarea>
+  <label><input type="checkbox" name="is_active" {% if not user or user.is_active %}checked{% endif %} style="width:auto"> Active account</label>
+  <p><button type="submit">Save</button></p>
+</form>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Requisitions{% endblock %}
+{% block heading %}{{ "Requisitions & refills" if current_user.is_staff() else "My requests" }}{% endblock %}
+{% block content %}
+{% if not current_user.is_staff() %}
+  <p><a class="btn" href="{{ url_for('requisitions.create') }}">Submit request</a></p>
+{% endif %}
+<div class="card">
+<table>
+  <thead><tr><th>Number</th><th>Requester</th><th>Type</th><th>Status</th><th>When</th></tr></thead>
+  <tbody>
+  {% for r in reqs %}
+    <tr>
+      <td><a href="{{ url_for('requisitions.detail', req_id=r.id) }}">{{ r.req_number }}</a></td>
+      <td>{{ r.requester.full_name }}{% if r.requester.department_name %} · {{ r.requester.department_name }}{% endif %}</td>
+      <td>{{ r.req_type }}</td>
+      <td><span class="pill info">{{ r.status.replace('_',' ') }}</span></td>
+      <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

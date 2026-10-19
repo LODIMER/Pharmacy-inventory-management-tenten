@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block heading %}Reports &amp; analytics{% endblock %}
+{% block content %}
+<p class="muted">Export any dataset as
+  {% for kind in ["valuation","abc","sales","controlled","reorder"] %}
+    <strong>{{ kind }}</strong>
+    <a href="{{ url_for('reports.export', fmt='pdf', kind=kind) }}">PDF</a> ·
+    <a href="{{ url_for('reports.export', fmt='csv', kind=kind) }}">CSV</a> ·
+    <a href="{{ url_for('reports.export', fmt='xlsx', kind=kind) }}">Excel</a>
+    {% if not loop.last %} | {% endif %}
+  {% endfor %}
+</p>
+
+<div class="grid split">
+  <article class="card">
+    <h2>Inventory valuation (₱{{ "%.2f"|format(inventory_value) }})</h2>
+    <table>
+      <thead><tr><th>SKU</th><th>Qty</th><th>Value</th><th></th></tr></thead>
+      <tbody>
+      {% for row in valuation %}
+        <tr>
+          <td>{{ row.product.brand_name }}</td>
+          <td>{{ row.qty }}</td>
+          <td>₱{{ "%.2f"|format(row.value) }}</td>
+          <td><span class="pill {{ row.status }}">{{ row.status }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </article>
+  <article class="card">
+    <h2>ABC analysis (fast vs slow)</h2>
+    <table>
+      <thead><tr><th>Item</th><th>Revenue</th><th>Class</th></tr></thead>
+      <tbody>
+      {% for r in abc %}
+        <tr><td>{{ r.name }}</td><td>₱{{ "%.2f"|format(r.revenue) }}</td><td>{{ r.class }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</div>
+
+<div class="grid split" style="margin-top:16px">
+  <article class="card">
+    <h2>Sales snapshot</h2>
+    <p>Today ₱{{ "%.2f"|format(day_sales) }} · This month ₱{{ "%.2f"|format(month_sales) }}</p>
+    <p>Rx units {{ rx_otc.rx }} · OTC units {{ rx_otc.otc }}</p>
+    <h3>Top movers</h3>
+    <ul>{% for name, qty in top %}<li>{{ name }} — {{ qty }}</li>{% endfor %}</ul>
+  </article>
+  <article class="card">
+    <h2>Expired / spoiled lots</h2>
+    <table>
+      <thead><tr><th>Lot</th><th>Item</th><th>Expiry</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for b in expired %}
+        <tr><td>{{ b.lot_number }}</td><td>{{ b.product.brand_name }}</td><td>{{ b.expiry_date }}</td><td>{{ b.status }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</div>
+
+<div class="grid split" style="margin-top:16px">
+  <article class="card">
+    <h2>Reorder &amp; stock-out</h2>
+    <p>{{ stockouts|length }} SKUs out of stock · {{ reorder|length }} below PAR</p>
+    <ul>{% for p in reorder %}<li>{{ p.brand_name }} — {{ p.available_qty() }} / min {{ p.reorder_point }}</li>{% endfor %}</ul>
+  </article>
+  <article class="card">
+    <h2>Controlled substance register (II–V)</h2>
+    <table>
+      <thead><tr><th>Receipt</th><th>When</th><th>License</th><th>Verifier</th></tr></thead>
+      <tbody>
+      {% for s in ctrl_sales %}
+        <tr>
+          <td><a href="{{ url_for('dispensing.receipt', sale_id=s.id) }}">{{ s.receipt_no }}</a></td>
+          <td>{{ s.created_at.strftime("%Y-%m-%d") }}</td>
+          <td>{{ s.doctor_license }}</td>
+          <td>{{ s.verifier.full_name if s.verifier else "—" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</div>
+{% endblock %}

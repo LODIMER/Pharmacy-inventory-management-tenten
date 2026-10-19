@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ req.req_number }}{% endblock %}
+{% block heading %}{{ req.req_number }}{% endblock %}
+{% block content %}
+<div class="steps">
+  {% for s in flow %}
+    <span class="step {% if req.status==s or flow.index(req.status) > loop.index0 %}on{% endif %}">{{ s.replace('_',' ') }}</span>
+  {% endfor %}
+  {% if req.status in ("cancelled","rejected") %}<span class="step on">{{ req.status }}</span>{% endif %}
+</div>
+<div class="grid split">
+  <article class="card">
+    <p>{{ req.req_type }} · {{ req.fulfillment }} {% if req.pickup_time %}· {{ req.pickup_time }}{% endif %}</p>
+    <p>Requester: {{ req.requester.full_name }}</p>
+    <p>{{ req.notes }}</p>
+    {% if req.prescription_file %}<p>Attached prescription: {{ req.prescription_file }}</p>{% endif %}
+    <table>
+      <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+      <tbody>
+      {% for l in req.lines %}
+        <tr><td>{{ l.product.brand_name }} ({{ l.product.generic_name }})</td><td>{{ l.quantity }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if req.status=="pending_review" %}
+      <form method="post" action="{{ url_for('requisitions.cancel', req_id=req.id) }}">
+        <button class="danger-btn" type="submit">Cancel request</button>
+      </form>
+    {% endif %}
+  </article>
+  {% if current_user.is_staff() %}
+  <article class="card">
+    <h2>Pharmacy actions</h2>
+    {% if req.status=="pending_review" and current_user.can_approve() %}
+      <form method="post" action="{{ url_for('requisitions.review', req_id=req.id) }}">
+        <label>Review note</label><textarea name="review_note"></textarea>
+        <p>
+          <button name="decision" value="approve" type="submit">Approve</button>
+          <button class="danger-btn" name="decision" value="reject" type="submit">Reject</button>
+        </p>
+      </form>
+    {% endif %}
+    {% if req.status=="processing" %}
+      <form method="post" action="{{ url_for('requisitions.advance', req_id=req.id) }}">
+        <button type="submit">Mark ready for pickup</button>
+      </form>
+    {% endif %}
+    {% if req.status=="ready_for_pickup" %}
+      <form method="post" action="{{ url_for('requisitions.advance', req_id=req.id) }}">
+        <button type="submit">Complete &amp; deduct stock (FEFO)</button>
+      </form>
+    {% endif %}
+    {% if req.reviewed_by %}<p class="muted">Reviewed by {{ req.reviewed_by.full_name }}: {{ req.review_note }}</p>{% endif %}
+  </article>
+  {% endif %}
+</div>
+{% endblock %}

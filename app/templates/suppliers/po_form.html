@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}New PO{% endblock %}
+{% block heading %}Create purchase order{% endblock %}
+{% block content %}
+<form class="card" method="post">
+  <label>Supplier</label>
+  <select name="supplier_id">{% for s in suppliers %}<option value="{{ s.id }}">{{ s.name }} ({{ s.lead_time_days }}d, {{ s.payment_terms }})</option>{% endfor %}</select>
+  <label>Notes</label><textarea name="notes"></textarea>
+  {% for i in range(5) %}
+  <div class="row">
+    <div>
+      <label>Item</label>
+      <select name="product_id">
+        <option value="">—</option>
+        {% for p in products %}<option value="{{ p.id }}">{{ p.brand_name }} (on hand {{ p.available_qty() }}, min {{ p.reorder_point }})</option>{% endfor %}
+      </select>
+    </div>
+    <div><label>Qty</label><input name="qty_ordered" type="number" min="0"></div>
+    <div><label>Unit cost</label><input name="unit_cost" type="number" step="0.01"></div>
+  </div>
+  {% endfor %}
+  <p><button type="submit">Save draft</button></p>
+</form>
+{% endblock %}

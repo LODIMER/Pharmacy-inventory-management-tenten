@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Purchase orders{% endblock %}
+{% block heading %}Purchasing{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <a class="btn" href="{{ url_for('suppliers.po_new') }}">Manual PO</a>
+  <form method="post" action="{{ url_for('suppliers.po_auto') }}">
+    <button class="secondary" type="submit">Auto-generate from reorder points</button>
+  </form>
+</div>
+<div class="card">
+<table>
+  <thead><tr><th>PO</th><th>Supplier</th><th>Status</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for po in pos %}
+    <tr>
+      <td><a href="{{ url_for('suppliers.po_detail', po_id=po.id) }}">{{ po.po_number }}</a></td>
+      <td>{{ po.supplier.name }}</td>
+      <td><span class="pill">{{ po.status.replace('_',' ') }}</span></td>
+      <td>{{ po.created_at.strftime("%Y-%m-%d") }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

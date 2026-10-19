@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}My log{% endblock %}
+{% block heading %}Personal login &amp; order history{% endblock %}
+{% block content %}
+<p class="muted">You can view your own sign-ins and submitted order events. Other users’ profiles and pharmacy stock logs are not shown.</p>
+<div class="card">
+<table>
+  <thead><tr><th>When</th><th>Action</th><th>Details</th><th>IP</th></tr></thead>
+  <tbody>
+  {% for l in logs %}
+    <tr>
+      <td>{{ l.timestamp.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>{{ l.action }}</td>
+      <td>{{ l.details or l.entity }}</td>
+      <td>{{ l.ip_address }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

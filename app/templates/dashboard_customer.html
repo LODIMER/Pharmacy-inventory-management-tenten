@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Portal{% endblock %}
+{% block heading %}Welcome, {{ current_user.full_name }}{% endblock %}
+{% block content %}
+{% if ready %}
+  <div class="flash success">Pickup / delivery alert: {% for r in ready %}{{ r.req_number }} is ready{% if not loop.last %}; {% endif %}{% endfor %}.</div>
+{% endif %}
+<div class="grid cards">
+  <article class="card">
+    <h2>Pending orders</h2>
+    <table>
+      <thead><tr><th>Request</th><th>Type</th><th>Status</th><th>Fulfillment</th></tr></thead>
+      <tbody>
+      {% for r in pending %}
+        <tr>
+          <td><a href="{{ url_for('requisitions.detail', req_id=r.id) }}">{{ r.req_number }}</a></td>
+          <td>{{ r.req_type }}</td>
+          <td><span class="pill info">{{ r.status.replace('_',' ') }}</span></td>
+          <td>{{ r.fulfillment }} {% if r.pickup_time %}· {{ r.pickup_time }}{% endif %}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="muted">No active refill or stock requests.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p><a class="btn" href="{{ url_for('requisitions.create') }}">New refill / requisition</a></p>
+  </article>
+  <article class="card">
+    <h2>Personal profile</h2>
+    <p><strong>{{ current_user.full_name }}</strong><br>{{ current_user.email }} · {{ current_user.phone }}</p>
+    {% if current_user.department_name %}<p>Unit: {{ current_user.department_name }}</p>{% endif %}
+    <p class="muted">Prescription notes</p>
+    <p>{{ current_user.prescription_notes or "None on file." }}</p>
+    <a href="{{ url_for('users.profile') }}">Edit contact details</a>
+  </article>
+</div>
+<div class="grid split" style="margin-top:16px">
+  <article class="card">
+    <h2>Recent purchases</h2>
+    <table>
+      <thead><tr><th>Receipt</th><th>Total</th><th>When</th></tr></thead>
+      <tbody>
+      {% for s in purchases %}
+        <tr>
+          <td><a href="{{ url_for('dispensing.receipt', sale_id=s.id) }}">{{ s.receipt_no }}</a></td>
+          <td>₱{{ "%.2f"|format(s.total) }}</td>
+          <td>{{ s.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="3" class="muted">No fulfillment history yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </article>
+  <article class="card">
+    <h2>Recent requests</h2>
+    <ul class="feed">
+      {% for r in history %}
+        <li>{{ r.req_number }} · {{ r.status.replace('_',' ') }}<time>{{ r.created_at.strftime("%Y-%m-%d") }}</time></li>
+      {% endfor %}
+    </ul>
+  </article>
+</div>
+{% endblock %}
